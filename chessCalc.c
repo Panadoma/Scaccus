@@ -40,7 +40,7 @@ void print_binary(BitBoard a) {
 void PrintBitBoard(BitBoard _bitBoard){  // For debugging, print a Bitboard
 
         char pos;
-        for(char i=7; i>=0; --i){
+        for(char i=7; i>=0; --i)
                 for(char j=0; j<8; ++j){
 
                         pos= 63 - (j + 8*i);
@@ -111,20 +111,19 @@ void PointingAtAKnight(struct board *_board,char bOrW){
 
 void PointingAtAPawn(struct board *_board,char bOrW){ //0 is white
 
-	//identify place the pawn can move
 	char canMove=1; 
 	BitBoard returnValue=0Ull;	
 	if(_board->pinnedPieces&_board->pointer){
 		canMove= 0	;
 	}
 	
-	if(_board->pointer&lookupTable.secondRank&&bOrW)	{ //one move or two moves
+	if(_board->pointer&lookupTable.secondRank&&bOrW)	{ 
 
 		Shout("Its a whitePawn, on the second rank\n");	
 
 
 	}	
-	if(_board->pointer&lookupTable.seventhRank&&!bOrW)	{ //one move or two moves
+	if(_board->pointer&lookupTable.seventhRank&&!bOrW)	{
 
 		
 		Shout("Its a blackPawn, on the senveth rank\n");	
@@ -134,9 +133,6 @@ void PointingAtAPawn(struct board *_board,char bOrW){ //0 is white
 
 }
 
-//Idenitfy squares that the pawn is attacking
-//
-//Idenitify the squares that the pawn can take
 
 
 
@@ -222,19 +218,15 @@ void IdentifyPiece(struct board *_board,piece* p, pieceColor* pc, char* isPointe
 
 
 void UpdateBoard(struct board *_board){
-//Acording to the new pointer, update masks and display information
 
 
 
-//claculate attacked squares, 
 	
 	
-	//PointingAtAKnight(_board,0);
 	PointingAtARook(_board,0);
 
 
 
-//change black and white color masks
 }
 
 
