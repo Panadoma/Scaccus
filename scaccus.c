@@ -273,7 +273,6 @@ int main(void){
 	pieceColor pc;
 	char isPointer[32];
 	strcpy(isPointer,IdentifyForeColor(&startingBoard,0,7,0));
- 	printf("%sWhy do you like that \n",isPointer);
 */
 
 
