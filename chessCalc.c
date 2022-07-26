@@ -1,5 +1,6 @@
 #include "scaccus.h"
 
+
 void MovePointer(struct board *_board, char operation); // operation: h=0 j=1 k=2 l=3,					//
 void UpdateBoard(struct board *_board);
 void IdentifyPiece(struct board *_board,piece *p,pieceColor *pc,char *isPointer, char x, char y);
@@ -40,7 +41,7 @@ void print_binary(BitBoard a) {
 void PrintBitBoard(BitBoard _bitBoard){  // For debugging, print a Bitboard
 
         char pos;
-        for(char i=7; i>=0; --i)
+        for(char i=7; i>=0; --i){
                 for(char j=0; j<8; ++j){
 
                         pos= 63 - (j + 8*i);
@@ -62,11 +63,36 @@ void PrintBitBoard(BitBoard _bitBoard){  // For debugging, print a Bitboard
         }
 }
 
-void GetFile(BitBoard _board, char file){
-	uint8_t returnValue;
+uint8_t GetFile(BitBoard _board, char file){
+
+	uint8_t returnValue=0Ull;
+	char index =0;
+	for(char i=(63-file);i>=0;i-=8){
+		returnValue = returnValue | ((_board>>i)&1Ull)<<index++;
+		printf("%d\n",i);
+	}
+	return returnValue;
+
 
 
 }
+
+
+uint8_t GetRank(BitBoard _board, char rank){
+
+	uint8_t returnValue=0Ull;
+	char index =0;
+	rank = 7 -rank;
+	rank*=8;
+	for(char i=7+rank;i>=rank;i--){
+		returnValue = returnValue | ((_board>>i)&1Ull)<<index++;
+	}
+	return returnValue;
+
+
+
+}
+
 BitBoard KnightAttack(BitBoard _pos){
 
 	BitBoard returnValue = 0ULL;
@@ -81,14 +107,34 @@ BitBoard KnightAttack(BitBoard _pos){
 		(_pos>>15)&~lookupTable.HFile;
 	return returnValue;
 }
+void GetCoordinates(char *i,char *j, BitBoard pointer){
+ 	char x=-1;
+	char y=0;
+	while(pointer){
+		pointer<<=1;
+		if(x==8){
+			y++;
+			x=0;
+		}
+		x++;
+	}
+	*i=x;
+	*j=y;
+}
+
 void PointingAtARook(struct board *_board,char bOrW){
 
 	//if((_board->pinnedPieces&_board->pointer)){  //ie if the piece is not pineed
 		BitBoard EnemyBoard = bOrW ? _board->bPieces : _board->wPieces;
 		BitBoard FriendBoard = bOrW ? _board->wPieces : _board->bPieces;
-		BitBoard x,y;
-		uint8_t reg = 0b00000000;
-		uint8_t file ;
+		char x,y;
+		x=y=0;
+		GetCoordinates(&x,&y,_board->pointer);		
+
+		uint8_t reg =    0b00000000;
+		uint8_t file=    0b01000100;
+		uint8_t enemfile=0b00001000;
+		uint8_t pointer= 0b0010000;
 		
 
 	//}	
@@ -120,7 +166,6 @@ void PointingAtAPawn(struct board *_board,char bOrW){ //0 is white
 	if(_board->pointer&lookupTable.secondRank&&bOrW)	{ 
 
 		Shout("Its a whitePawn, on the second rank\n");	
-
 
 	}	
 	if(_board->pointer&lookupTable.seventhRank&&!bOrW)	{
@@ -223,10 +268,11 @@ void UpdateBoard(struct board *_board){
 
 	
 	
-	PointingAtARook(_board,0);
+	PointingAtARook(_board,1);
+	
 
 
-
+	
 }
 
 
