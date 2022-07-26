@@ -59,7 +59,6 @@ void PrintBitBoard(BitBoard _bitBoard){  // For debugging, print a Bitboard
 
 
         printf("\n");
-        }
 }
 
 void GetFile(BitBoard _board, char file){
