@@ -107,7 +107,7 @@ void PrintCharacter(char *character,char *colorEscape,char i, char j){
 		}
 		move_cursor((w/2)-20+j*scaleFactorX,(h/2)-10+i*scaleFactorY);	
 
-		RGBBack_Colors(lol,lob,loc);
+//		RGBBack_Colors(lol,lob,loc);
 		printf("%s",colorEscape);
 		printf("%s",character);
 		puts(TC_Backtonormal);
@@ -265,9 +265,9 @@ void clos()
 
 
 int main(void){
-//	RenderBoard(startingBoard);
+	RenderBoard(startingBoard);
 //	DrawMenu();
-//	clos();
+	clos();
      /*
 	piece p;
 	pieceColor pc;
@@ -276,13 +276,6 @@ int main(void){
 */
 
 
-//	PrintBitBoard(KnightAttack(startingBoard.pointer));
-	UpdateBoard(&startingBoard);
-	PrintAMiniBoard(startingBoard);
-	printf("\n");
-	PrintBitBoard(startingBoard.PieceCouldCapture);
-	printf("\n");
-	PrintBitBoard(KnightAttack(startingBoard.pointer));
 	return 0;
 }
 
