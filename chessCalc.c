@@ -1,4 +1,5 @@
 #include "scaccus.h"
+#include "chessConversion.c"
 
 
 void MovePointer(struct board *_board, char operation); // operation: h=0 j=1 k=2 l=3,					//
@@ -32,11 +33,6 @@ void MovePointer(struct board *_board, char operation){
         _board->pointer = y;
 }
 
-void print_binary(BitBoard a) {
-    if (a > 1)
-        print_binary(a / 2);
-    printf("%d", a % 2);
-}
 
 void PrintBitBoard(BitBoard _bitBoard){  // For debugging, print a Bitboard
 
@@ -69,28 +65,21 @@ uint8_t GetFile(BitBoard _board, char file){
 	char index =0;
 	for(char i=(63-file);i>=0;i-=8){
 		returnValue = returnValue | ((_board>>i)&1Ull)<<index++;
-		printf("%d\n",i);
 	}
 	return returnValue;
-
-
-
 }
 
 
 uint8_t GetRank(BitBoard _board, char rank){
 
 	uint8_t returnValue=0Ull;
-	char index =0;
+	char index =7;
 	rank = 7 -rank;
 	rank*=8;
 	for(char i=7+rank;i>=rank;i--){
-		returnValue = returnValue | ((_board>>i)&1Ull)<<index++;
+		returnValue = returnValue | ((_board>>i)&1Ull)<<index--;
 	}
 	return returnValue;
-
-
-
 }
 
 BitBoard KnightAttack(BitBoard _pos){
@@ -107,6 +96,7 @@ BitBoard KnightAttack(BitBoard _pos){
 		(_pos>>15)&~lookupTable.HFile;
 	return returnValue;
 }
+
 void GetCoordinates(char *i,char *j, BitBoard pointer){
  	char x=-1;
 	char y=0;
@@ -122,25 +112,6 @@ void GetCoordinates(char *i,char *j, BitBoard pointer){
 	*j=y;
 }
 
-void PointingAtARook(struct board *_board,char bOrW){
-
-	//if((_board->pinnedPieces&_board->pointer)){  //ie if the piece is not pineed
-		BitBoard EnemyBoard = bOrW ? _board->bPieces : _board->wPieces;
-		BitBoard FriendBoard = bOrW ? _board->wPieces : _board->bPieces;
-		char x,y;
-		x=y=0;
-		GetCoordinates(&x,&y,_board->pointer);		
-
-		uint8_t reg =    0b00000000;
-		uint8_t file=    0b01000100;
-		uint8_t enemfile=0b00001000;
-		uint8_t pointer= 0b0010000;
-		
-
-	//}	
-
-
-}
 void PointingAtAKnight(struct board *_board,char bOrW){
 	
 	if(!(_board->pinnedPieces&_board->pointer)){  //ie if the piece is not pineed
@@ -174,17 +145,19 @@ void PointingAtAPawn(struct board *_board,char bOrW){ //0 is white
 		Shout("Its a blackPawn, on the senveth rank\n");	
 	}
 	
-	
-
 }
-
-
-
-
-
+uint8_t ReverseBits(uint8_t num)
+{
+    uint8_t NO_OF_BITS = sizeof(num) * 8;
+    uint8_t reverse_num = 0;
+    int i;
+    for (i = 0; i < NO_OF_BITS; i++) {
+        if ((num & (1 << i)))
+            reverse_num |= 1 << ((NO_OF_BITS - 1) - i);
+    }
+    return reverse_num;
+}
 void IdentifyPiece(struct board *_board,piece* p, pieceColor* pc, char* isPointer, char y, char x){
-
-
 
         char pos= 63 - (x + 8*y);
         BitBoard mask = 1ULL <<pos;
@@ -255,22 +228,82 @@ void IdentifyPiece(struct board *_board,piece* p, pieceColor* pc, char* isPointe
                 goto lblColors;
         }
         lblColors:
-
-
-
-
+}
+uint8_t RayFillLeft(uint8_t input){ //eg 000101101 --> 11100000
+	char index=7;
+	uint8_t returnValue=0;
+	while(!((input>>index)&1)&&index>=0){
+		returnValue =returnValue|1<<index;
+		--index;
+	}
+	return returnValue;
 }
 
+uint8_t RayFillRight(uint8_t input){ //eg 000101101 --> 11100000
+	unsigned char index=0;
+	uint8_t returnValue=0;
+	while(!((input>>index)&1)&&index<9){
+		returnValue =returnValue|1<<index;
+		++index;
+	}
+	return returnValue;
+}
+void PointingAtARook(struct board *_board,char bOrW){
+	
+
+	//if((_board->pinnedPieces&_board->pointer)){  //ie if the piece is not pineed
+
+		printf("\n");
+		BitBoard EnemyBoard = bOrW ? _board->bPieces : _board->wPieces;
+		BitBoard FriendBoard = bOrW ? _board->wPieces : _board->bPieces;
+		char x,y;
+		x=y=0;
+		GetCoordinates(&x,&y,_board->pointer);		
+		printf("x:%d y:%d\n",x,y);	
+		uint8_t file =   GetFile(FriendBoard,x);
+		uint8_t rank =   GetRank(FriendBoard,y);
+		//uint8_t rank =  0b01010100;
+
+		//rank
+		uint8_t rightSide = rank<<(x);
+		uint8_t leftSide  = rank>>(8-x);
+		rightSide = rightSide>>(x);
+		leftSide  = leftSide<<(8-x);	
+
+
+		
+		printf("RightSide is: ");
+		print_binary(rightSide);
+		printf("\n");
+			
+
+		printf("leftSide is: ");
+		print_binary(leftSide);
+		printf("\n");
+
+		leftSide= RayFillRight(leftSide);
+		rightSide=  RayFillRight(rightSide);
+
+
+		printf("RightSideRayfilled is: ");
+		print_binary(rightSide);
+		printf("\n");
+		printf("leftSideRayfilled is: ");
+		print_binary(leftSide);
+		printf("\n");
+
+	//}	
+}
 
 void UpdateBoard(struct board *_board){
+/*
+	printf("\n");
+	PrintBitBoard(emptyBoard.pointer);
+	PointingAtARook(_board,1);	
 
-
-
+	*/
+	FENToInternal(&emptyBoard,"rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R");	
 	
-	
-	PointingAtARook(_board,1);
-	
-
 
 	
 }

@@ -221,7 +221,7 @@ char *IdentifyCharacter(pieceColor currentPieceColor, piece currentPiece) {
 
 	
 		}else{ 
-				strcpy(pieceChar,"ˑ");	}
+				strcpy(pieceChar,".");	}
 		return pieceChar;
 
 
@@ -265,9 +265,9 @@ void clos()
 
 
 int main(void){
-	RenderBoard(startingBoard);
+//	RenderBoard(startingBoard);
 //	DrawMenu();
-	clos();
+//	clos();
      /*
 	piece p;
 	pieceColor pc;
@@ -275,7 +275,12 @@ int main(void){
 	strcpy(isPointer,IdentifyForeColor(&startingBoard,0,7,0));
 */
 
-
+	PrintAMiniBoard(emptyBoard);
+	printf("\n");
+	UpdateBoard(&emptyBoard);	
+	emptyBoard.bPieces= emptyBoard.bPawnBoard|emptyBoard.bRookBoard|emptyBoard.bKnightBoard|emptyBoard.bBishopBoard|emptyBoard.bKingBoard|emptyBoard.bQueenBoard;
+	emptyBoard.wPieces= emptyBoard.wPawnBoard|emptyBoard.wRookBoard|emptyBoard.wKnightBoard|emptyBoard.wBishopBoard|emptyBoard.wKingBoard|emptyBoard.wQueenBoard;
+	PrintAMiniBoard(emptyBoard);	
 	return 0;
 }
 
