@@ -98,18 +98,13 @@ BitBoard KnightAttack(BitBoard _pos){
 }
 
 void GetCoordinates(char *i,char *j, BitBoard pointer){
- 	char x=-1;
-	char y=0;
+	char index=-1;
 	while(pointer){
-		pointer<<=1;
-		if(x==8){
-			y++;
-			x=0;
-		}
-		x++;
+		++index;
+		pointer= pointer<<1;
 	}
-	*i=x;
-	*j=y;
+	*i=(index%8);
+	*j=(index)/8;
 }
 
 void PointingAtAKnight(struct board *_board,char bOrW){
@@ -229,7 +224,7 @@ void IdentifyPiece(struct board *_board,piece* p, pieceColor* pc, char* isPointe
         }
         lblColors:
 }
-uint8_t RayFillLeft(uint8_t input){ //eg 000101101 --> 11100000
+uint8_t RayFillLeft(uint8_t input){ 
 	char index=7;
 	uint8_t returnValue=0;
 	while(!((input>>index)&1)&&index>=0){
@@ -239,60 +234,79 @@ uint8_t RayFillLeft(uint8_t input){ //eg 000101101 --> 11100000
 	return returnValue;
 }
 
-uint8_t RayFillRight(uint8_t input){ //eg 000101101 --> 11100000
+uint8_t RayFill(uint8_t enemy,uint8_t blockers, uint8_t *empty, uint8_t *capture  ){ 
 	unsigned char index=0;
-	uint8_t returnValue=0;
-	while(!((input>>index)&1)&&index<9){
-		returnValue =returnValue|1<<index;
+	uint8_t emptySquares=0;
+	//printf("%d\n",((blockers>>index)&1));
+	while((!((blockers>>index)&1))&&index<9){
+		emptySquares=emptySquares|(1<<index);
 		++index;
 	}
-	return returnValue;
+	if(enemy>>index&1){
+		*capture = (*capture)|(1<<index);
+	}
+	*empty=emptySquares;
 }
 void PointingAtARook(struct board *_board,char bOrW){
-	
 
-	//if((_board->pinnedPieces&_board->pointer)){  //ie if the piece is not pineed
+		BitBoard enemyBoard = bOrW ? _board->bPieces : _board->wPieces;
+		BitBoard blockerBoard = bOrW ? _board->wPieces|enemyBoard : _board->bPieces|enemyBoard;
+		BitBoard emptySquare =0Ull;
+		BitBoard canCapture =0Ull;
 
-		printf("\n");
-		BitBoard EnemyBoard = bOrW ? _board->bPieces : _board->wPieces;
-		BitBoard FriendBoard = bOrW ? _board->wPieces : _board->bPieces;
 		char x,y;
-		x=y=0;
-		GetCoordinates(&x,&y,_board->pointer);		
-		printf("x:%d y:%d\n",x,y);	
-		uint8_t file =   GetFile(FriendBoard,x);
-		uint8_t rank =   GetRank(FriendBoard,y);
-		//uint8_t rank =  0b01010100;
-
-		//rank
-		uint8_t rightSide = rank<<(x);
-		uint8_t leftSide  = rank>>(8-x);
-		rightSide = rightSide>>(x);
-		leftSide  = leftSide<<(8-x);	
-
-
-		
-		printf("RightSide is: ");
-		print_binary(rightSide);
-		printf("\n");
+		GetCoordinates(&x,&y,_board->pointer);	
+		printf("x: %d, y:%d \n",x,y);
+		for(int i=(6-x);i>=0;i--){ //right ray
+			BitBoard tmp = (1Ull<<(((7-y)*8 + (i))));
+			if(!(tmp&blockerBoard))
+				emptySquare = emptySquare|tmp;
+			else{
+				if(tmp&enemyBoard){
+					canCapture = canCapture|tmp;
+				}
+				break;
+			}
+		}	
+		for(int i=x-1;i>=0;i--){ //left ray
 			
+			BitBoard tmp = (1Ull<<((7-y)*8 + (7-i) ));
+			if(!(tmp&blockerBoard))
+				emptySquare = emptySquare|tmp;
+			else{
+				if(tmp&enemyBoard){
+					canCapture = canCapture|tmp;
+				}
+				break;
+			}
+		}	
+		for(int i=y-1;i>=0;i--){ //down
+			BitBoard tmp = (1Ull<<((7-i)*8 + (7-x)));
+			if(!(tmp&blockerBoard))
+				emptySquare = emptySquare|tmp;
+			else{
+				if(tmp&enemyBoard){
+					canCapture = canCapture|tmp;
+				}
+				break;
+			}
+		}
+		for(int i=(6-y);i>=0;i--){ //up
 
-		printf("leftSide is: ");
-		print_binary(leftSide);
-		printf("\n");
+			BitBoard tmp = (1Ull<<((i)*8 + (7-x)));
+			if(!(tmp&blockerBoard))
+				emptySquare = emptySquare|tmp;
+			else{
+				if(tmp&enemyBoard){
+					canCapture = canCapture|tmp;
+				}
+				break;
+			}
+		}
+		_board->PieceCouldGo = emptySquare;
+		_board->PieceCouldCapture= canCapture;
 
-		leftSide= RayFillRight(leftSide);
-		rightSide=  RayFillRight(rightSide);
 
-
-		printf("RightSideRayfilled is: ");
-		print_binary(rightSide);
-		printf("\n");
-		printf("leftSideRayfilled is: ");
-		print_binary(leftSide);
-		printf("\n");
-
-	//}	
 }
 
 void UpdateBoard(struct board *_board){
@@ -302,9 +316,11 @@ void UpdateBoard(struct board *_board){
 	PointingAtARook(_board,1);	
 
 	*/
-	FENToInternal(&emptyBoard,"rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R");	
-	
-
+	_board->pointer = 1Ull<<(8*4)+5;
+	PrintBitBoard(emptyBoard.pointer);
+	printf("\n");
+	PointingAtARook(&emptyBoard,1);
+	printf("\n");
 	
 }
 

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void print_binary(BitBoard a) {
+void print_binary(BitBoard a){
     if (a > 1)
         print_binary(a / 2);
     printf("%d", a % 2);
