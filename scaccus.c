@@ -1,7 +1,7 @@
 #include "chessCalc.c"
-
-#define scaleFactorX 6
-#define scaleFactorY 3
+//One character is approximately 2:1 so keep it in that ratio
+#define scaleFactorX 4
+#define scaleFactorY 2
 
 
 
@@ -84,15 +84,15 @@ void PrintCharacter(char *character,char *colorEscape,char i, char j){
 		isEight++;	
 		if(flipflop)
 		{
-			lol = 200;
-			lob =23;
-			loc =129;
+			lol = 109;
+			lob =104;
+			loc =117;
 			flipflop =0;
 		}
 		else {
-			lol =120;
-			lob =23;
-			loc =129;
+			lol =255;
+			lob =205;
+			loc =178;
 			flipflop=1;
 
 		}
@@ -100,14 +100,14 @@ void PrintCharacter(char *character,char *colorEscape,char i, char j){
 		for(int x=-3;x<=3;x++){
 			for(int y=-1;y<=1;y++){		
 				move_cursor((w/2)-20-x+j*scaleFactorX,(h/2)-10-y+i*scaleFactorY);	
-				//RGBBack_Colors(lol,lob,loc);
-				//printf(" ");
-				//puts(TC_Backtonormal);
+			//	RGBBack_Colors(lol,lob,loc);
+			//	printf(" ");
+			//	puts(TC_Backtonormal);
 			}
 		}
 		move_cursor((w/2)-20+j*scaleFactorX,(h/2)-10+i*scaleFactorY);	
 
-//		RGBBack_Colors(lol,lob,loc);
+		//RGBBack_Colors(lol,lob,loc);
 		printf("%s",colorEscape);
 		printf("%s",character);
 		puts(TC_Backtonormal);
@@ -265,9 +265,12 @@ void clos()
 
 
 int main(void){
-//	RenderBoard(startingBoard);
+	FENToInternal(&emptyBoard,"r4rk1/p3ppbp/Pp1q1np1/3PpbB1/2B5/2N5/1PPQ1PPP/3RR1K1");
+	emptyBoard.wPieces=emptyBoard.wPawnBoard|emptyBoard.wRookBoard|emptyBoard.wKnightBoard|emptyBoard.wBishopBoard|emptyBoard.wQueenBoard|emptyBoard.wKingBoard;
+	emptyBoard.bPieces=emptyBoard.bPawnBoard|emptyBoard.bRookBoard|emptyBoard.bKnightBoard|emptyBoard.bBishopBoard|emptyBoard.bQueenBoard|emptyBoard.bKingBoard;
+	RenderBoard(emptyBoard);
 //	DrawMenu();
-//	clos();
+	clos();
      /*
 	piece p;
 	pieceColor pc;
@@ -275,12 +278,10 @@ int main(void){
 	strcpy(isPointer,IdentifyForeColor(&startingBoard,0,7,0));
 */
 
-	PrintAMiniBoard(emptyBoard);
-	printf("\n");
-	UpdateBoard(&emptyBoard);	
-	emptyBoard.bPieces= emptyBoard.bPawnBoard|emptyBoard.bRookBoard|emptyBoard.bKnightBoard|emptyBoard.bBishopBoard|emptyBoard.bKingBoard|emptyBoard.bQueenBoard;
-	emptyBoard.wPieces= emptyBoard.wPawnBoard|emptyBoard.wRookBoard|emptyBoard.wKnightBoard|emptyBoard.wBishopBoard|emptyBoard.wKingBoard|emptyBoard.wQueenBoard;
-	PrintAMiniBoard(emptyBoard);	
+
+//	PrintBitBoard(KnightAttack(startingBoard.pointer));
+//	PrintBitBoard(startingBoard.PieceCouldCapture);
+//	PrintBitBoard(KnightAttack(startingBoard.pointer));
 	return 0;
 }
 

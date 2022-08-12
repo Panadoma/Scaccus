@@ -253,10 +253,8 @@ void PointingAtARook(struct board *_board,char bOrW){
 		BitBoard blockerBoard = bOrW ? _board->wPieces|enemyBoard : _board->bPieces|enemyBoard;
 		BitBoard emptySquare =0Ull;
 		BitBoard canCapture =0Ull;
-
 		char x,y;
-		GetCoordinates(&x,&y,_board->pointer);	
-		printf("x: %d, y:%d \n",x,y);
+		GetCoordinates(&x,&y,_board->pointer);		
 		for(int i=(6-x);i>=0;i--){ //right ray
 			BitBoard tmp = (1Ull<<(((7-y)*8 + (i))));
 			if(!(tmp&blockerBoard))
@@ -305,8 +303,68 @@ void PointingAtARook(struct board *_board,char bOrW){
 		}
 		_board->PieceCouldGo = emptySquare;
 		_board->PieceCouldCapture= canCapture;
+}
 
+void PointingAtBishop(struct board *_board,char bOrW){
 
+		BitBoard enemyBoard = bOrW ? _board->bPieces : _board->wPieces;
+		BitBoard blockerBoard = bOrW ? _board->wPieces|enemyBoard : _board->bPieces|enemyBoard;
+		BitBoard emptySquare =0Ull;
+		BitBoard canCapture =0Ull;
+		char x,y;
+		GetCoordinates(&x,&y,_board->pointer);	
+		char largerCoordinate = x >= y ? x : y;
+		for(int i=1;i<=7-largerCoordinate;++i){ //north-east	
+			BitBoard tmp = (1Ull<<63-(((y+i)*8 + (x+i))));
+			if(!(tmp&blockerBoard))
+				emptySquare = emptySquare|tmp;
+			else{
+				if(tmp&enemyBoard){
+					canCapture = canCapture|tmp;
+				}
+				break;
+			}
+		}
+		largerCoordinate = (7-x) >= y ? (7-x) : y;
+		for(int i=1;i<= 7-largerCoordinate;++i){ //north-west
+			
+			BitBoard tmp = (1Ull<<63-((y+i)*8 + (x-i)));
+			if(!(tmp&blockerBoard))
+				emptySquare = emptySquare|tmp;
+			else{	
+				if(tmp&enemyBoard){
+					canCapture = canCapture|tmp;
+				}
+				break;
+			}
+		}
+		largerCoordinate = (7-x) >= (7-y) ? (7-x) : (7-y);
+		for(int i=1;i<=7- largerCoordinate;++i){ //south-west
+			BitBoard tmp = (1Ull<<63-(((y-i)*8 + x - i)));
+			if(!(tmp&blockerBoard))
+				emptySquare = emptySquare|tmp;
+			else{
+				if(tmp&enemyBoard){
+					canCapture = canCapture|tmp;
+				}
+				break;
+			}
+		}
+		largerCoordinate = x >= 7-y ? x : 7-y;
+		for(int i=1;i<= 7-largerCoordinate;++i){ //south-east
+			
+			BitBoard tmp = (1Ull<<63-((y-i)*8 + (x+i)));
+			if(!(tmp&blockerBoard))
+				emptySquare = emptySquare|tmp;
+			else{	
+				if(tmp&enemyBoard){
+					canCapture = canCapture|tmp;
+				}
+				break;
+			}
+		}
+		_board->PieceCouldGo = emptySquare;
+		_board->PieceCouldCapture= canCapture;
 }
 
 void UpdateBoard(struct board *_board){
@@ -316,10 +374,10 @@ void UpdateBoard(struct board *_board){
 	PointingAtARook(_board,1);	
 
 	*/
-	_board->pointer = 1Ull<<(8*4)+5;
+	_board->pointer = 1Ull<<(8*5)+5;
 	PrintBitBoard(emptyBoard.pointer);
 	printf("\n");
-	PointingAtARook(&emptyBoard,1);
+	PointingAtBishop(&emptyBoard,0);
 	printf("\n");
 	
 }
