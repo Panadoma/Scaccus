@@ -1,5 +1,4 @@
 #include "scaccus.h"
-#include "chessConversion.c"
 
 
 void MovePointer(struct board *_board, char operation); // operation: h=0 j=1 k=2 l=3,					//
@@ -33,6 +32,20 @@ void MovePointer(struct board *_board, char operation){
         _board->pointer = y;
 }
 
+void InitPieceArray(){
+	pieceArray[0] = &(startingBoard.wPawnBoard);
+	pieceArray[1] = &(startingBoard.wRookBoard);
+	pieceArray[2] = &(startingBoard.wKnightBoard);
+	pieceArray[3] = &(startingBoard.wBishopBoard);
+	pieceArray[4] = &(startingBoard.wKingBoard);
+	pieceArray[5] = &(startingBoard.wQueenBoard);
+	pieceArray[6] = &(startingBoard.bPawnBoard);
+	pieceArray[7] = &(startingBoard.bRookBoard);
+	pieceArray[8] = &(startingBoard.bKnightBoard);
+	pieceArray[9] = &(startingBoard.bBishopBoard);
+	pieceArray[10]= &(startingBoard.bKingBoard);
+	pieceArray[11]= &(startingBoard.bQueenBoard);
+}
 
 void PrintBitBoard(BitBoard _bitBoard){  // For debugging, print a Bitboard
 
@@ -60,7 +73,6 @@ void PrintBitBoard(BitBoard _bitBoard){  // For debugging, print a Bitboard
 }
 
 uint8_t GetFile(BitBoard _board, char file){
-
 	uint8_t returnValue=0Ull;
 	char index =0;
 	for(char i=(63-file);i>=0;i-=8){
@@ -68,7 +80,6 @@ uint8_t GetFile(BitBoard _board, char file){
 	}
 	return returnValue;
 }
-
 
 uint8_t GetRank(BitBoard _board, char rank){
 
@@ -82,6 +93,28 @@ uint8_t GetRank(BitBoard _board, char rank){
 	return returnValue;
 }
 
+void Move(BitBoard pos1, BitBoard pos2){
+
+	InitPieceArray();
+	char currentPieceIndex;
+	for(int i;i<11;++i){
+		if(*pieceArray[i]&pos1){
+			currentPieceIndex = i;
+			break;
+		}
+	}
+	if(*pieceArray[currentPieceIndex]&startingBoard.wPieces){
+		startingBoard.wPieces = startingBoard.wPieces^pos1;	
+		startingBoard.wPieces = startingBoard.wPieces|pos2;	
+	}
+	else{
+		startingBoard.bPieces = startingBoard.bPieces^pos1;	
+		startingBoard.bPieces = startingBoard.bPieces|pos2;	
+	*pieceArray[currentPieceIndex] = *pieceArray[currentPieceIndex]^pos1;
+	*pieceArray[currentPieceIndex] = *pieceArray[currentPieceIndex] | pos2;
+
+	}
+}
 BitBoard KnightAttack(BitBoard _pos){
 
 	BitBoard returnValue = 0ULL;
@@ -119,27 +152,6 @@ void PointingAtAKnight(struct board *_board,char bOrW){
 		_board->PieceCouldCapture= canCaptureBoard;
 	}	
 
-}
-
-void PointingAtAPawn(struct board *_board,char bOrW){ //0 is white
-
-	char canMove=1; 
-	BitBoard returnValue=0Ull;	
-	if(_board->pinnedPieces&_board->pointer){
-		canMove= 0	;
-	}
-	
-	if(_board->pointer&lookupTable.secondRank&&bOrW)	{ 
-
-		Shout("Its a whitePawn, on the second rank\n");	
-
-	}	
-	if(_board->pointer&lookupTable.seventhRank&&!bOrW)	{
-
-		
-		Shout("Its a blackPawn, on the senveth rank\n");	
-	}
-	
 }
 uint8_t ReverseBits(uint8_t num)
 {
@@ -367,20 +379,182 @@ void PointingAtBishop(struct board *_board,char bOrW){
 		_board->PieceCouldCapture= canCapture;
 }
 
-void UpdateBoard(struct board *_board){
-/*
-	printf("\n");
-	PrintBitBoard(emptyBoard.pointer);
-	PointingAtARook(_board,1);	
+void PointingAtKing(struct board *_board,char bOrW){
 
-	*/
-	_board->pointer = 1Ull<<(8*5)+5;
-	PrintBitBoard(emptyBoard.pointer);
-	printf("\n");
-	PointingAtBishop(&emptyBoard,0);
-	printf("\n");
-	
+	BitBoard enemyBoard = bOrW ? _board->bPieces : _board->wPieces;
+	BitBoard blockerBoard = bOrW ? _board->wPieces|enemyBoard : _board->bPieces|enemyBoard;
+	BitBoard pos = _board->pointer;
+	BitBoard emptySquare =0Ull;
+	BitBoard canCapture =0Ull;
+	BitBoard attackMask =  	(pos<<1&~lookupTable.HFile) |
+				(pos>>1&~lookupTable.AFile) |
+				(pos<<8&~lookupTable.eighthRank) |
+				(pos>>8&~lookupTable.firstRank)  |
+				(pos<<9&~lookupTable.eighthRank&~lookupTable.HFile) | 
+				(pos>>9&~lookupTable.firstRank&~lookupTable.AFile)|
+				(pos<<7&~lookupTable.eighthRank&~lookupTable.AFile) |
+				(pos>>7&~lookupTable.firstRank&~lookupTable.HFile) ;
+
+	emptySquare = attackMask&~blockerBoard;
+	canCapture = attackMask&enemyBoard;
+	_board->PieceCouldGo = emptySquare;
+	_board->PieceCouldCapture= canCapture;
+}
+
+void PointingAtQueen(struct board *_board,char bOrW){
+
+		BitBoard enemyBoard = bOrW ? _board->bPieces : _board->wPieces;
+		BitBoard blockerBoard = bOrW ? _board->wPieces|enemyBoard : _board->bPieces|enemyBoard;
+		BitBoard emptySquare =0Ull;
+		BitBoard canCapture =0Ull;
+		char x,y;
+		GetCoordinates(&x,&y,_board->pointer);	
+		char largerCoordinate = x >= y ? x : y;
+		for(int i=1;i<=7-largerCoordinate;++i){ //north-east	
+			BitBoard tmp = (1Ull<<63-(((y+i)*8 + (x+i))));
+			if(!(tmp&blockerBoard))
+				emptySquare = emptySquare|tmp;
+			else{
+				if(tmp&enemyBoard){
+					canCapture = canCapture|tmp;
+				}
+				break;
+			}
+		}
+		largerCoordinate = (7-x) >= y ? (7-x) : y;
+		for(int i=1;i<= 7-largerCoordinate;++i){ //north-west
+			
+			BitBoard tmp = (1Ull<<63-((y+i)*8 + (x-i)));
+			if(!(tmp&blockerBoard))
+				emptySquare = emptySquare|tmp;
+			else{	
+				if(tmp&enemyBoard){
+					canCapture = canCapture|tmp;
+				}
+				break;
+			}
+		}
+		largerCoordinate = (7-x) >= (7-y) ? (7-x) : (7-y);
+		for(int i=1;i<=7- largerCoordinate;++i){ //south-west
+			BitBoard tmp = (1Ull<<63-(((y-i)*8 + x - i)));
+			if(!(tmp&blockerBoard))
+				emptySquare = emptySquare|tmp;
+			else{
+				if(tmp&enemyBoard){
+					canCapture = canCapture|tmp;
+				}
+				break;
+			}
+		}
+		largerCoordinate = x >= 7-y ? x : 7-y;
+		for(int i=1;i<= 7-largerCoordinate;++i){ //south-east
+			
+			BitBoard tmp = (1Ull<<63-((y-i)*8 + (x+i)));
+			if(!(tmp&blockerBoard))
+				emptySquare = emptySquare|tmp;
+			else{	
+				if(tmp&enemyBoard){
+					canCapture = canCapture|tmp;
+				}
+				break;
+			}
+		}
+
+		for(int i=(6-x);i>=0;i--){ //right ray
+			BitBoard tmp = (1Ull<<(((7-y)*8 + (i))));
+			if(!(tmp&blockerBoard))
+				emptySquare = emptySquare|tmp;
+			else{
+				if(tmp&enemyBoard){
+					canCapture = canCapture|tmp;
+				}
+				break;
+			}
+		}	
+		for(int i=x-1;i>=0;i--){ //left ray
+			
+			BitBoard tmp = (1Ull<<((7-y)*8 + (7-i) ));
+			if(!(tmp&blockerBoard))
+				emptySquare = emptySquare|tmp;
+			else{
+				if(tmp&enemyBoard){
+					canCapture = canCapture|tmp;
+				}
+				break;
+			}
+		}	
+		for(int i=y-1;i>=0;i--){ //down
+			BitBoard tmp = (1Ull<<((7-i)*8 + (7-x)));
+			if(!(tmp&blockerBoard))
+				emptySquare = emptySquare|tmp;
+			else{
+				if(tmp&enemyBoard){
+					canCapture = canCapture|tmp;
+				}
+				break;
+			}
+		}
+		for(int i=(6-y);i>=0;i--){ //up
+
+			BitBoard tmp = (1Ull<<((i)*8 + (7-x)));
+			if(!(tmp&blockerBoard))
+				emptySquare = emptySquare|tmp;
+			else{
+				if(tmp&enemyBoard){
+					canCapture = canCapture|tmp;
+				}
+				break;
+			}
+		}
+
+
+		_board->PieceCouldGo = emptySquare;
+		_board->PieceCouldCapture= canCapture;
 }
 
 
+void PointingAtPawn(struct board *_board,char bOrW){ //0 is white
+
+	BitBoard emptySquare =0Ull;
+	BitBoard canCapture =0Ull;
+	BitBoard enemyBoard = bOrW ? _board->bPieces : _board->wPieces;
+	BitBoard blockerBoard = bOrW ? _board->wPieces|enemyBoard : _board->bPieces|enemyBoard;
+	if(_board->pointer&lookupTable.secondRank&&bOrW&&!(_board->pointer>>16&blockerBoard)&&!(_board->pointer>>8&blockerBoard))	
+		emptySquare = emptySquare | _board->pointer>>16;
+	if(_board->pointer&lookupTable.seventhRank&&!bOrW&&!(_board->pointer<<16&blockerBoard)&&!(_board->pointer<<8&blockerBoard))
+		emptySquare = emptySquare | _board->pointer<<16;
+	if(!(_board->pointer>>8&blockerBoard)&&bOrW)
+		emptySquare = emptySquare | _board->pointer>>8;
+	if(!(_board->pointer<<8&blockerBoard)&&!bOrW)
+		emptySquare = emptySquare | _board->pointer<<8;
+	//captures
+	if(bOrW&&(_board->pointer>>7)&enemyBoard)
+		canCapture = canCapture| _board->pointer>>7;		
+	if(bOrW&&(_board->pointer>>9)&enemyBoard)
+		canCapture = canCapture| _board->pointer>>9;
+	if(!bOrW&&(_board->pointer<<7)&enemyBoard)
+		canCapture = canCapture| _board->pointer<<7;
+	if(!bOrW&&(_board->pointer<<9)&enemyBoard)
+		canCapture = canCapture| _board->pointer<<9;
+
+	_board->PieceCouldGo = emptySquare;
+	_board->PieceCouldCapture= canCapture;
+}
+
+BitBoard WhichCanTakeOn(struct board *_board, BitBoard Pieces, BitBoard pos){
+
+	for(int i=0; i<=7; ++i){
+		for(int j=0; j<=7; ++j){
+			UpdateBoard(_board);
+		}
+	}
+}
+
+void UpdateBoard(struct board *_board){
+	//loop the pointer, if pointers and determine the wAttackSquars and bAttackSquars
+	//Determine the wpieces and bpieces 
+	//
+
+}
+	
 

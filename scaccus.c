@@ -1,7 +1,7 @@
-#include "chessCalc.c"
+#include "chessConversion.c"
 //One character is approximately 2:1 so keep it in that ratio
-#define scaleFactorX 4
-#define scaleFactorY 2
+#define scaleFactorX 6
+#define scaleFactorY 3
 
 
 
@@ -264,14 +264,19 @@ void clos()
 
 
 
-int main(void){
+int main(){
+
+     /*
 	FENToInternal(&emptyBoard,"r4rk1/p3ppbp/Pp1q1np1/3PpbB1/2B5/2N5/1PPQ1PPP/3RR1K1");
 	emptyBoard.wPieces=emptyBoard.wPawnBoard|emptyBoard.wRookBoard|emptyBoard.wKnightBoard|emptyBoard.wBishopBoard|emptyBoard.wQueenBoard|emptyBoard.wKingBoard;
 	emptyBoard.bPieces=emptyBoard.bPawnBoard|emptyBoard.bRookBoard|emptyBoard.bKnightBoard|emptyBoard.bBishopBoard|emptyBoard.bQueenBoard|emptyBoard.bKingBoard;
 	RenderBoard(emptyBoard);
 //	DrawMenu();
 	clos();
-     /*
+
+
+//--------------------------------------------------
+	
 	piece p;
 	pieceColor pc;
 	char isPointer[32];
@@ -279,10 +284,22 @@ int main(void){
 */
 
 
-//	PrintBitBoard(KnightAttack(startingBoard.pointer));
-//	PrintBitBoard(startingBoard.PieceCouldCapture);
-//	PrintBitBoard(KnightAttack(startingBoard.pointer));
-	return 0;
+	FENToInternal(&emptyBoard,"1r5r/p3kp2/4p2p/4P3/3R1Pp1/6P1/P1P4P/4K2R");
+	emptyBoard.wPieces=emptyBoard.wPawnBoard|emptyBoard.wRookBoard|emptyBoard.wKnightBoard|emptyBoard.wBishopBoard|emptyBoard.wQueenBoard|emptyBoard.wKingBoard;
+	emptyBoard.bPieces=emptyBoard.bPawnBoard|emptyBoard.bRookBoard|emptyBoard.bKnightBoard|emptyBoard.bBishopBoard|emptyBoard.bQueenBoard|emptyBoard.bKingBoard;
+	emptyBoard.pointer = 1ull<<11;
+	PrintAMiniBoard(emptyBoard);
+	printf("\n");
+	UpdateBoard(&emptyBoard);
+			
+
+
+	BitBoard a, b;
+	InitPieceArray();
+	AlgebraToPos(&emptyBoard,"e4",&a,&b,*pieceArray);
+
+	
+
 }
 
 

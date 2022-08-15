@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include "chessCalc.c"
 void print_binary(BitBoard a){
     if (a > 1)
         print_binary(a / 2);
@@ -12,8 +12,6 @@ void print_binary(BitBoard a){
 void FENToInternal(struct board *_board,const char FEN[]){
 	int i=0;	
 	char rank=0,file=0;
-
-	
 	printf("%s\n",FEN);
 	while(FEN[i]!='\0'){
 
@@ -99,6 +97,104 @@ void FENToInternal(struct board *_board,const char FEN[]){
 		
 		i++;
 
+	}
+
+}
+
+void AlgebraToPos(struct board *_board,const char move[],BitBoard *pos1,BitBoard *pos2,BitBoard pieceArr[]){
+
+	int i =0;
+	char pieceID = _board->turn ? 0 : 6; //0 and 6 are white and blacks pawn in pieceArr.	
+	char rankMod = 0;
+	char fileMod  = 0;
+	while(move[i]!='\0'){
+		switch (move[i]){
+
+			case 'a':
+				fileMod = 7;
+				break;
+
+			case 'b':
+
+				fileMod = 6;
+				break;
+				
+			case 'c':
+				fileMod = 5;
+				break;
+
+			case 'd':
+				fileMod = 4;
+				break;
+
+			case 'e':
+				fileMod = 3;
+				break;
+
+			case 'f':
+				fileMod = 2;
+				break;
+				
+			case 'g':
+				fileMod = 1;
+				break;
+
+			case 'h':
+				fileMod = 0;
+				break;
+
+			case '1':
+				rankMod = 7;
+				break;
+	
+			case '2':
+				rankMod = 6;
+				break;
+
+			case '3':
+				rankMod = 5;
+				break;
+		
+			case '4':
+				rankMod = 4;
+				break;
+
+			case '5':
+				rankMod = 3;
+				break;
+
+			case '6':
+				rankMod = 2;
+				break;
+
+			case '7':
+				rankMod = 1;
+				break;
+
+			case '8':
+				rankMod = 0;
+				break;
+			case 'R':
+				pieceID += 1;
+				break;
+
+			case 'N':
+				pieceID += 2;
+				break;
+
+			case 'B':
+				pieceID += 3;
+				break;
+
+			case 'K':
+				pieceID += 4;
+				break;
+
+			case 'Q':
+				pieceID += 5;
+				break;
+		}
+		++i;
 	}
 
 }
