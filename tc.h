@@ -36,8 +36,8 @@
 #define TC_BG_CYN "\x1B[46m"
 #define TC_BG_WHT "\x1B[47m"
 
-#define bColor "\033[38;2;226;135;67m"
-#define wColor "\033[38;2;255;255;255m"
+#define wColor "\033[38;2;180;255;255m"
+#define bColor "\033[38;2;255;128;161m"
 //#define wColor TC_B_BLU
 //#define bColor TC_CYN
 

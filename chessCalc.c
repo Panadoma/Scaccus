@@ -3,7 +3,7 @@
 
 void MovePointer(struct board *_board, char operation); // operation: h=0 j=1 k=2 l=3,					//
 void UpdateBoard(struct board *_board);
-void IdentifyPiece(struct board *_board,piece *p,pieceColor *pc,char *isPointer, char x, char y);
+void IdentifyPiece(char* PieceID,struct board *_board,piece *p,pieceColor *pc,char *isPointer, char x, char y);
 BitBoard KnightAttack(BitBoard _pos);
 void Shout(char *message){
 //print a message on another temrinal
@@ -32,24 +32,25 @@ void MovePointer(struct board *_board, char operation){
         _board->pointer = y;
 }
 
-void InitPieceArray(){
-	pieceArray[0] = &(startingBoard.wPawnBoard);
-	pieceArray[1] = &(startingBoard.wRookBoard);
-	pieceArray[2] = &(startingBoard.wKnightBoard);
-	pieceArray[3] = &(startingBoard.wBishopBoard);
-	pieceArray[4] = &(startingBoard.wKingBoard);
-	pieceArray[5] = &(startingBoard.wQueenBoard);
-	pieceArray[6] = &(startingBoard.bPawnBoard);
-	pieceArray[7] = &(startingBoard.bRookBoard);
-	pieceArray[8] = &(startingBoard.bKnightBoard);
-	pieceArray[9] = &(startingBoard.bBishopBoard);
-	pieceArray[10]= &(startingBoard.bKingBoard);
-	pieceArray[11]= &(startingBoard.bQueenBoard);
+void InitPieceArray(struct board *_board){
+	pieceArray[0] = &(_board->wPawnBoard);
+	pieceArray[1] = &(_board->wRookBoard);
+	pieceArray[2] = &(_board->wKnightBoard);
+	pieceArray[3] = &(_board->wBishopBoard);
+	pieceArray[4] = &(_board->wKingBoard);
+	pieceArray[5] = &(_board->wQueenBoard);
+	pieceArray[6] = &(_board->bPawnBoard);
+	pieceArray[7] = &(_board->bRookBoard);
+	pieceArray[8] = &(_board->bKnightBoard);
+	pieceArray[9] = &(_board->bBishopBoard);
+	pieceArray[10]= &(_board->bKingBoard);
+	pieceArray[11]= &(_board->bQueenBoard);
 }
 
 void PrintBitBoard(BitBoard _bitBoard){  // For debugging, print a Bitboard
 
         char pos;
+        printf("\n");
         for(char i=7; i>=0; --i){
                 for(char j=0; j<8; ++j){
 
@@ -93,9 +94,9 @@ uint8_t GetRank(BitBoard _board, char rank){
 	return returnValue;
 }
 
-void Move(BitBoard pos1, BitBoard pos2){
-
-	InitPieceArray();
+void Move(struct board *_board,BitBoard pos1, BitBoard pos2){
+	//IsLegal();
+	InitPieceArray(_board); //To access the pieces of the bitboard as an array 
 	char currentPieceIndex;
 	for(int i;i<11;++i){
 		if(*pieceArray[i]&pos1){
@@ -103,6 +104,16 @@ void Move(BitBoard pos1, BitBoard pos2){
 			break;
 		}
 	}
+	/// 
+	/// /
+	///
+	///
+	/// Change the starting boards into _board
+	///
+	///
+	///
+	///
+	///
 	if(*pieceArray[currentPieceIndex]&startingBoard.wPieces){
 		startingBoard.wPieces = startingBoard.wPieces^pos1;	
 		startingBoard.wPieces = startingBoard.wPieces|pos2;	
@@ -164,7 +175,7 @@ uint8_t ReverseBits(uint8_t num)
     }
     return reverse_num;
 }
-void IdentifyPiece(struct board *_board,piece* p, pieceColor* pc, char* isPointer, char y, char x){
+void IdentifyPiece(char* PieceID, struct board *_board,piece* p, pieceColor* pc, char* isPointer, char y, char x){
 
         char pos= 63 - (x + 8*y);
         BitBoard mask = 1ULL <<pos;
@@ -177,61 +188,84 @@ void IdentifyPiece(struct board *_board,piece* p, pieceColor* pc, char* isPointe
         if(_board->wPawnBoard&mask){
                 *p = Pawn;
                 *pc = White;
+		*PieceID = 0;
                 goto lblColors;
         }
         if(_board->wKnightBoard&mask){
                 *p = Knight;
                 *pc = White;
+		*PieceID = 1;
+                goto lblColors;
                 goto lblColors;
         }
         if(_board->wKingBoard&mask){
                 *p = King;
                 *pc = White;
+		*PieceID = 2;
+                goto lblColors;
                 goto lblColors;
         }
         if(_board->wQueenBoard&mask){
                 *p = Queen;
                 *pc = White;
+		*PieceID = 3;
+                goto lblColors;
                 goto lblColors;
         }
         if(_board->wBishopBoard&mask){
                 *p = Bishop;
                 *pc = White;
+		*PieceID = 4;
+                goto lblColors;
                 goto lblColors;
         }
         if(_board->wRookBoard&mask){
                 *p = Rook;
                 *pc = White;
+		*PieceID = 5;
+                goto lblColors;
                 goto lblColors;
         }
         if(_board->bPawnBoard&mask){
                 *p = Pawn;
                 *pc = Black;
+		*PieceID = 6;
+                goto lblColors;
                 goto lblColors;
         }
         if(_board->bKnightBoard&mask){
                 *p = Knight;
                 *pc = Black;
+		*PieceID = 7;
+                goto lblColors;
                 goto lblColors;
         }
         if(_board->bKingBoard&mask){
                 *p = King;
                 *pc = Black;
+		*PieceID = 8;
+                goto lblColors;
                 goto lblColors;
         }
         if(_board->bQueenBoard&mask){
                 *p = Queen;
                 *pc = Black;
+		*PieceID = 9;
+                goto lblColors;
                 goto lblColors;
         }
         if(_board->bBishopBoard&mask){
                 *p = Bishop;
                 *pc = Black;
+		*PieceID = 10;
+                goto lblColors;
                 goto lblColors;
         }
         if(_board->bRookBoard&mask){
                 *p = Rook;
                 *pc = Black;
+		*PieceID = 11;
+                goto lblColors;
                 goto lblColors;
         }
         lblColors:
@@ -357,7 +391,7 @@ void PointingAtBishop(struct board *_board,char bOrW){
 				emptySquare = emptySquare|tmp;
 			else{
 				if(tmp&enemyBoard){
-					canCapture = canCapture|tmp;
+
 				}
 				break;
 			}
@@ -506,12 +540,9 @@ void PointingAtQueen(struct board *_board,char bOrW){
 				break;
 			}
 		}
-
-
 		_board->PieceCouldGo = emptySquare;
 		_board->PieceCouldCapture= canCapture;
 }
-
 
 void PointingAtPawn(struct board *_board,char bOrW){ //0 is white
 
@@ -541,20 +572,132 @@ void PointingAtPawn(struct board *_board,char bOrW){ //0 is white
 	_board->PieceCouldCapture= canCapture;
 }
 
-BitBoard WhichCanTakeOn(struct board *_board, BitBoard Pieces, BitBoard pos){
-
-	for(int i=0; i<=7; ++i){
-		for(int j=0; j<=7; ++j){
-			UpdateBoard(_board);
+BitBoard WhichCanTakeOn(struct board *_board, char pieceID, BitBoard destinationPos,char *message,char isCapture){
+//eg Bxe4, loop through the bishops and determine which one can take on e4k
+//message: 0-cannot be completed (il*message) 1- legal, (More than one can take could be implimented int he future)
+	struct board TempBoard ;
+	char turns= 1;	
+	int shiftIndex = 0;
+	InitPieceArray(_board);
+	*message = 0;
+	BitBoard pieceMask = *pieceArray[pieceID];
+	do{
+		int i  = shiftIndex;
+		while(!((pieceMask>>i)&1)){
+			++i;
+			++shiftIndex;
+			if(shiftIndex>64){
+				break;
+			}
 		}
-	}
-}
+		_board->pointer = 1Ull <<shiftIndex;
+		BitBoard captureOrMove = isCapture ? _board->PieceCouldCapture : _board->PieceCouldGo;
+		if(pieceID == 1){ //white rook
+			PointingAtARook(_board,1);
+			if(captureOrMove & destinationPos){
+				*message = 1;
+				return (_board->pointer);	
+			}
+			
+		}
+		if(pieceID == 7){ //black rook
+			PointingAtARook(_board,0);
+			if(captureOrMove & destinationPos){
+				*message = 1;
+				return (_board->pointer);	
+			}
+		}
 
+		if(pieceID == 3){ //white bishop 
+			PointingAtBishop(_board,1);
+			if(captureOrMove & destinationPos){
+				*message = 1;
+				return (_board->pointer);	
+			}
+		}
+		if(pieceID == 9){ //black bishop 
+			PointingAtBishop(_board,0);
+			if(captureOrMove & destinationPos){
+				*message = 1;
+				return (_board->pointer);	
+			}
+		}
+
+		if(pieceID == 2){ //white knight 
+			PointingAtAKnight(_board,1);
+			if(captureOrMove & destinationPos){
+				*message = 1;
+				return (_board->pointer);	
+			}
+		}
+		if(pieceID == 8){ //black knight 
+			PointingAtAKnight(_board,0);
+			if(captureOrMove & destinationPos){
+				*message = 1;
+				return (_board->pointer);	
+			}
+		}
+		if(pieceID == 5){ //white queen 
+			PointingAtQueen(_board,1);
+			if(captureOrMove & destinationPos){
+				*message = 1;
+				return (_board->pointer);	
+			}
+		}
+		if(pieceID == 11){ //black queen 
+			PointingAtQueen(_board,0);
+			if(captureOrMove & destinationPos){
+				*message = 1;
+				return (_board->pointer);	
+			}
+		}
+		if(pieceID == 4){ //white king 
+			PointingAtKing(_board,1);
+			if(captureOrMove & destinationPos){
+				*message = 1;
+				return (_board->pointer);	
+			}
+		}
+		if(pieceID == 10){ //black king 
+			PointingAtKing(_board,0);
+			if(captureOrMove & destinationPos){
+				*message = 1;
+				return (_board->pointer);	
+			}
+		}
+
+
+		if(pieceID == 0){ //white pawn
+			PointingAtPawn(_board,1);
+			if(captureOrMove & destinationPos){
+				*message = 1;
+				return (_board->pointer);	
+			}
+		}
+		if(pieceID == 6){ //black pawn
+			PointingAtPawn(_board,0);
+			if(captureOrMove & destinationPos){
+				*message = 1;
+				return (_board->pointer);	
+			}
+		}
+
+
+		++shiftIndex;
+
+	} while(pieceMask>>shiftIndex); 
+//To DO: Make the messages work	
+	
+}
 void UpdateBoard(struct board *_board){
-	//loop the pointer, if pointers and determine the wAttackSquars and bAttackSquars
+	//loop the pointer, and determine the wAttackSquars and bAttackSquars
 	//Determine the wpieces and bpieces 
 	//
+	_board->wPieces = _board->wPawnBoard | _board->wRookBoard|
+		_board->wKnightBoard | _board->wBishopBoard | 
+		_board->wKingBoard | _board->wQueenBoard;
+	_board->bPieces = _board->bPawnBoard | _board->bRookBoard|
+		_board->bKnightBoard | _board->bBishopBoard|
+		_board->bKingBoard | _board->bQueenBoard;
 
 }
-	
-

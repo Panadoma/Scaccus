@@ -99,103 +99,102 @@ void FENToInternal(struct board *_board,const char FEN[]){
 
 	}
 
+	UpdateBoard(_board);
 }
 
-void AlgebraToPos(struct board *_board,const char move[],BitBoard *pos1,BitBoard *pos2,BitBoard pieceArr[]){
-
+void AlgebraToPos(struct board *_board,const char move[],BitBoard *pos1,BitBoard *pos2){
+	//There are 8 possible formats: e4, exd4, Re4, R8e4, R1e4, Rxe4,Raxe4, R1xe4 e8Q
+	// R8e4, R1e4,Raxe4 R1xe4, exd4 
 	int i =0;
+	//InitPieceArray();
+	char isCapture = 0;
 	char pieceID = _board->turn ? 0 : 6; //0 and 6 are white and blacks pawn in pieceArr.	
-	char rankMod = 0;
-	char fileMod  = 0;
+	char originRankMod = 0;
+	char originFileMod = 0;
+	char destinationRankMod = 0;
+	char destinationFileMod  = 0;
 	while(move[i]!='\0'){
 		switch (move[i]){
 
-			case 'a':
-				fileMod = 7;
-				break;
-
-			case 'b':
-
-				fileMod = 6;
-				break;
-				
-			case 'c':
-				fileMod = 5;
-				break;
-
-			case 'd':
-				fileMod = 4;
-				break;
-
-			case 'e':
-				fileMod = 3;
-				break;
-
-			case 'f':
-				fileMod = 2;
-				break;
-				
-			case 'g':
-				fileMod = 1;
-				break;
-
-			case 'h':
-				fileMod = 0;
-				break;
-
-			case '1':
-				rankMod = 7;
-				break;
-	
-			case '2':
-				rankMod = 6;
-				break;
-
-			case '3':
-				rankMod = 5;
-				break;
-		
-			case '4':
-				rankMod = 4;
-				break;
-
-			case '5':
-				rankMod = 3;
-				break;
-
-			case '6':
-				rankMod = 2;
-				break;
-
-			case '7':
-				rankMod = 1;
-				break;
-
-			case '8':
-				rankMod = 0;
-				break;
 			case 'R':
 				pieceID += 1;
 				break;
-
 			case 'N':
 				pieceID += 2;
 				break;
-
 			case 'B':
 				pieceID += 3;
 				break;
-
 			case 'K':
 				pieceID += 4;
 				break;
-
 			case 'Q':
 				pieceID += 5;
+				break;
+			case 'x':
+				isCapture = 1;
+				break;
+
+			case 'a':
+				destinationFileMod = 7;
+				break;
+			case 'b':
+				destinationFileMod = 6;
+				break;
+			case 'c':
+				destinationFileMod = 5;
+				break;
+			case 'd':
+				destinationFileMod = 4;
+				break;
+			case 'e':
+				destinationFileMod = 3;
+				break;
+			case 'f':
+				destinationFileMod = 2;
+				break;
+			case 'g':
+				destinationFileMod = 1;
+				break;
+			case 'h':
+				destinationFileMod = 0;
+				break;
+			case '1':
+				destinationRankMod = 7;
+				break;
+			case '2':
+				destinationRankMod = 6;
+				break;
+			case '3':
+				destinationRankMod = 5;
+				break;
+			case '4':
+				destinationRankMod = 4;
+				break;
+			case '5':
+				destinationRankMod = 3;
+				break;
+			case '6':
+				destinationRankMod = 2;
+				break;
+			case '7':
+				destinationRankMod = 1;
+				break;
+			case '8':
+				destinationRankMod = 0;
 				break;
 		}
 		++i;
 	}
+	//piece 
+	//printf("pieceArray\n");
+	//PrintBitBoard(*pieceArray[pieceID]);
+	//printf("\n");
+	//pos that it goes to 
+	char message;
+	*pos2 = 1Ull<< (destinationRankMod * 8 + destinationFileMod);
+	*pos1 = WhichCanTakeOn(_board,pieceID,*pos2,&message, isCapture);
+
 
 }
 

@@ -1,3 +1,4 @@
+#include <locale.h>
 #include "chessConversion.c"
 //One character is approximately 2:1 so keep it in that ratio
 #define scaleFactorX 6
@@ -9,14 +10,13 @@ void RenderBoard(struct board _board);
 void PrintAMiniBoard(struct board _board);
 void PrintBitBoard(BitBoard _bitBoard);
 void DrawMenu();
-void IdentifyPiece(struct board *_board,piece *p,pieceColor *pc,char *isPointer, char x, char y);
 void PrintCharacter(char *character,char *colorEscape,char i, char j);
 void MakeAMove();
 
 
 char *IdentifyCharacter(pieceColor currentPieceColor, piece currentPiece) ;
 char *IdentifyForeColor(struct board *_board, char isPointer, char y, char x);
-
+char garbage;
 char flipflop=0;
 char isEight=0;
 void DrawMenu()
@@ -62,7 +62,7 @@ void RenderBoard(struct board _board){
 		for(char j=0; j<8; ++j){	
 
 			strcpy(colorEscape,IdentifyForeColor(&_board,0,i, j));
-			IdentifyPiece(&_board,&currentPiece ,&currentPieceColor ,&isPointer,i, j);
+			IdentifyPiece(&garbage,&_board,&currentPiece ,&currentPieceColor ,&isPointer,i, j);
 			strcpy(character,IdentifyCharacter(currentPieceColor,currentPiece));
 			PrintCharacter(character,colorEscape,i,j);
 		}
@@ -125,7 +125,7 @@ void PrintAMiniBoard(struct board _board){
 		for(char j=0; j<8; ++j){	
 
 			strcpy(colorEscape,IdentifyForeColor(&_board,0,i, j));
-			IdentifyPiece(&_board,&currentPiece ,&currentPieceColor ,&isPointer,i, j);
+			IdentifyPiece(&garbage, &_board,&currentPiece ,&currentPieceColor ,&isPointer,i, j);
 			strcpy(character,IdentifyCharacter(currentPieceColor,currentPiece));
 				printf("%s",colorEscape);
 				printf(" %s",character);
@@ -216,6 +216,7 @@ char *IdentifyCharacter(pieceColor currentPieceColor, piece currentPiece) {
 			case King:
 				strcpy(pieceChar,_w_king_);	
 				break;
+
 		}
 
 
@@ -265,7 +266,6 @@ void clos()
 
 
 int main(){
-
      /*
 	FENToInternal(&emptyBoard,"r4rk1/p3ppbp/Pp1q1np1/3PpbB1/2B5/2N5/1PPQ1PPP/3RR1K1");
 	emptyBoard.wPieces=emptyBoard.wPawnBoard|emptyBoard.wRookBoard|emptyBoard.wKnightBoard|emptyBoard.wBishopBoard|emptyBoard.wQueenBoard|emptyBoard.wKingBoard;
@@ -284,19 +284,22 @@ int main(){
 */
 
 
-	FENToInternal(&emptyBoard,"1r5r/p3kp2/4p2p/4P3/3R1Pp1/6P1/P1P4P/4K2R");
-	emptyBoard.wPieces=emptyBoard.wPawnBoard|emptyBoard.wRookBoard|emptyBoard.wKnightBoard|emptyBoard.wBishopBoard|emptyBoard.wQueenBoard|emptyBoard.wKingBoard;
-	emptyBoard.bPieces=emptyBoard.bPawnBoard|emptyBoard.bRookBoard|emptyBoard.bKnightBoard|emptyBoard.bBishopBoard|emptyBoard.bQueenBoard|emptyBoard.bKingBoard;
+	FENToInternal(&emptyBoard,"1r5r/p3kp2/4p2p/4PP2/3R2p1/6P1/P1P4P/4K2R");
+	//FENToInternal(&emptyBoard,"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
 	emptyBoard.pointer = 1ull<<11;
 	PrintAMiniBoard(emptyBoard);
 	printf("\n");
 	UpdateBoard(&emptyBoard);
 			
 
-
 	BitBoard a, b;
-	InitPieceArray();
-	AlgebraToPos(&emptyBoard,"e4",&a,&b,*pieceArray);
+	InitPieceArray(&emptyBoard);
+	AlgebraToPos(&emptyBoard,"h3",&a,&b);
+
+	PrintBitBoard(a);
+	PrintBitBoard(b);
+
+	
 
 	
 
