@@ -284,8 +284,8 @@ int main(){
 */
 
 
-	FENToInternal(&emptyBoard,"1r5r/p3kp2/4p2p/4PP2/3R2p1/6P1/P1P4P/4K2R");
-	//FENToInternal(&emptyBoard,"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+	//FENToInternal(&emptyBoard,"3k1r2/ppp5/2q2n2/3p2Q1/3P3R/5PP1/PP1Nr1P1/1K5R");
+	FENToInternal(&emptyBoard,"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
 	emptyBoard.pointer = 1ull<<11;
 	PrintAMiniBoard(emptyBoard);
 	printf("\n");
@@ -294,10 +294,20 @@ int main(){
 
 	BitBoard a, b;
 	InitPieceArray(&emptyBoard);
-	AlgebraToPos(&emptyBoard,"h3",&a,&b);
+	emptyBoard.turn =0;
 
-	PrintBitBoard(a);
-	PrintBitBoard(b);
+
+	char Themove[5];
+	while(1){
+		printf("your move:  ");
+		emptyBoard.turn = !emptyBoard.turn;
+		scanf("%s",Themove);
+		AlgebraToPos(&emptyBoard,Themove,&a,&b);
+		Move(&emptyBoard,a,b);	
+		printf("\n");
+		PrintAMiniBoard(emptyBoard);
+
+	}
 
 	
 

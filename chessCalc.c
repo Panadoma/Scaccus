@@ -96,35 +96,29 @@ uint8_t GetRank(BitBoard _board, char rank){
 
 void Move(struct board *_board,BitBoard pos1, BitBoard pos2){
 	//IsLegal();
-	InitPieceArray(_board); //To access the pieces of the bitboard as an array 
-	char currentPieceIndex;
-	for(int i;i<11;++i){
+	InitPieceArray(_board); //To access the pieces of the board as an array 
+	char currentPieceIndex=0;
+	for(int i=0;i<11;++i){
 		if(*pieceArray[i]&pos1){
 			currentPieceIndex = i;
 			break;
 		}
 	}
-	/// 
-	/// /
-	///
-	///
-	/// Change the starting boards into _board
-	///
-	///
-	///
-	///
-	///
-	if(*pieceArray[currentPieceIndex]&startingBoard.wPieces){
-		startingBoard.wPieces = startingBoard.wPieces^pos1;	
-		startingBoard.wPieces = startingBoard.wPieces|pos2;	
+
+	if(*pieceArray[currentPieceIndex]&(_board->wPieces)){
+
+
+		_board->wPieces = _board->wPieces^pos1;	
+		_board->wPieces = _board->wPieces|pos2;	
 	}
 	else{
-		startingBoard.bPieces = startingBoard.bPieces^pos1;	
-		startingBoard.bPieces = startingBoard.bPieces|pos2;	
+		_board->bPieces =  _board->bPieces^pos1;	
+		_board->bPieces =  _board->bPieces|pos2;	
+	}
+
 	*pieceArray[currentPieceIndex] = *pieceArray[currentPieceIndex]^pos1;
 	*pieceArray[currentPieceIndex] = *pieceArray[currentPieceIndex] | pos2;
 
-	}
 }
 BitBoard KnightAttack(BitBoard _pos){
 
@@ -572,7 +566,7 @@ void PointingAtPawn(struct board *_board,char bOrW){ //0 is white
 	_board->PieceCouldCapture= canCapture;
 }
 
-BitBoard WhichCanTakeOn(struct board *_board, char pieceID, BitBoard destinationPos,char *message,char isCapture){
+BitBoard WhichCanTakeOn(struct board *_board, char pieceID, BitBoard destinationPos,char *message,char isCapture, BitBoard OriginMask){
 //eg Bxe4, loop through the bishops and determine which one can take on e4k
 //message: 0-cannot be completed (il*message) 1- legal, (More than one can take could be implimented int he future)
 	struct board TempBoard ;
@@ -581,7 +575,18 @@ BitBoard WhichCanTakeOn(struct board *_board, char pieceID, BitBoard destination
 	InitPieceArray(_board);
 	*message = 0;
 	BitBoard pieceMask = *pieceArray[pieceID];
+
+	printf("pieceID: %d",pieceID);
+
+	char plsDontGetStuckInALoop= 100;
 	do{
+		--plsDontGetStuckInALoop;
+		if(!plsDontGetStuckInALoop){
+			break;
+		}
+
+
+
 		int i  = shiftIndex;
 		while(!((pieceMask>>i)&1)){
 			++i;
@@ -591,9 +596,14 @@ BitBoard WhichCanTakeOn(struct board *_board, char pieceID, BitBoard destination
 			}
 		}
 		_board->pointer = 1Ull <<shiftIndex;
-		BitBoard captureOrMove = isCapture ? _board->PieceCouldCapture : _board->PieceCouldGo;
+		if(!(_board->pointer & OriginMask)) {//Origin is given
+			goto notReturn;	
+		}	
+
+			BitBoard captureOrMove;
 		if(pieceID == 1){ //white rook
 			PointingAtARook(_board,1);
+			captureOrMove = isCapture ? _board->PieceCouldCapture: _board->PieceCouldGo;
 			if(captureOrMove & destinationPos){
 				*message = 1;
 				return (_board->pointer);	
@@ -602,6 +612,7 @@ BitBoard WhichCanTakeOn(struct board *_board, char pieceID, BitBoard destination
 		}
 		if(pieceID == 7){ //black rook
 			PointingAtARook(_board,0);
+			captureOrMove = isCapture ? _board->PieceCouldCapture : _board->PieceCouldGo;
 			if(captureOrMove & destinationPos){
 				*message = 1;
 				return (_board->pointer);	
@@ -610,6 +621,7 @@ BitBoard WhichCanTakeOn(struct board *_board, char pieceID, BitBoard destination
 
 		if(pieceID == 3){ //white bishop 
 			PointingAtBishop(_board,1);
+			captureOrMove = isCapture ? _board->PieceCouldCapture : _board->PieceCouldGo;
 			if(captureOrMove & destinationPos){
 				*message = 1;
 				return (_board->pointer);	
@@ -617,6 +629,7 @@ BitBoard WhichCanTakeOn(struct board *_board, char pieceID, BitBoard destination
 		}
 		if(pieceID == 9){ //black bishop 
 			PointingAtBishop(_board,0);
+			captureOrMove = isCapture ? _board->PieceCouldCapture : _board->PieceCouldGo;
 			if(captureOrMove & destinationPos){
 				*message = 1;
 				return (_board->pointer);	
@@ -625,6 +638,7 @@ BitBoard WhichCanTakeOn(struct board *_board, char pieceID, BitBoard destination
 
 		if(pieceID == 2){ //white knight 
 			PointingAtAKnight(_board,1);
+			captureOrMove = isCapture ? _board->PieceCouldCapture : _board->PieceCouldGo;
 			if(captureOrMove & destinationPos){
 				*message = 1;
 				return (_board->pointer);	
@@ -632,6 +646,7 @@ BitBoard WhichCanTakeOn(struct board *_board, char pieceID, BitBoard destination
 		}
 		if(pieceID == 8){ //black knight 
 			PointingAtAKnight(_board,0);
+			captureOrMove = isCapture ? _board->PieceCouldCapture : _board->PieceCouldGo;
 			if(captureOrMove & destinationPos){
 				*message = 1;
 				return (_board->pointer);	
@@ -639,6 +654,7 @@ BitBoard WhichCanTakeOn(struct board *_board, char pieceID, BitBoard destination
 		}
 		if(pieceID == 5){ //white queen 
 			PointingAtQueen(_board,1);
+			captureOrMove = isCapture ? _board->PieceCouldCapture : _board->PieceCouldGo;
 			if(captureOrMove & destinationPos){
 				*message = 1;
 				return (_board->pointer);	
@@ -646,6 +662,7 @@ BitBoard WhichCanTakeOn(struct board *_board, char pieceID, BitBoard destination
 		}
 		if(pieceID == 11){ //black queen 
 			PointingAtQueen(_board,0);
+			captureOrMove = isCapture ? _board->PieceCouldCapture : _board->PieceCouldGo;
 			if(captureOrMove & destinationPos){
 				*message = 1;
 				return (_board->pointer);	
@@ -653,6 +670,7 @@ BitBoard WhichCanTakeOn(struct board *_board, char pieceID, BitBoard destination
 		}
 		if(pieceID == 4){ //white king 
 			PointingAtKing(_board,1);
+			captureOrMove = isCapture ? _board->PieceCouldCapture : _board->PieceCouldGo;
 			if(captureOrMove & destinationPos){
 				*message = 1;
 				return (_board->pointer);	
@@ -660,6 +678,7 @@ BitBoard WhichCanTakeOn(struct board *_board, char pieceID, BitBoard destination
 		}
 		if(pieceID == 10){ //black king 
 			PointingAtKing(_board,0);
+			captureOrMove = isCapture ? _board->PieceCouldCapture : _board->PieceCouldGo;
 			if(captureOrMove & destinationPos){
 				*message = 1;
 				return (_board->pointer);	
@@ -669,6 +688,7 @@ BitBoard WhichCanTakeOn(struct board *_board, char pieceID, BitBoard destination
 
 		if(pieceID == 0){ //white pawn
 			PointingAtPawn(_board,1);
+			captureOrMove = isCapture ? _board->PieceCouldCapture : _board->PieceCouldGo;
 			if(captureOrMove & destinationPos){
 				*message = 1;
 				return (_board->pointer);	
@@ -676,13 +696,13 @@ BitBoard WhichCanTakeOn(struct board *_board, char pieceID, BitBoard destination
 		}
 		if(pieceID == 6){ //black pawn
 			PointingAtPawn(_board,0);
+			captureOrMove = isCapture ? _board->PieceCouldCapture : _board->PieceCouldGo;
 			if(captureOrMove & destinationPos){
 				*message = 1;
 				return (_board->pointer);	
 			}
 		}
-
-
+		notReturn:
 		++shiftIndex;
 
 	} while(pieceMask>>shiftIndex); 
